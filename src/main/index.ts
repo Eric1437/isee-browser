@@ -1,10 +1,11 @@
-import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage } from 'electron'
+import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, shell } from 'electron'
 import { join } from 'node:path'
 import { buildWindowOptions } from './windows'
 import { getSettings } from './settings-store'
 import { createSettingsWindow, getSettingsWindow } from './settings-window'
 import { registerIpcHandlers } from './ipc'
 import { initUpdater, checkForUpdates } from './updater'
+import { isAllowedNavigation } from './nav-guard'
 
 let contentWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -14,6 +15,22 @@ function createContentWindow() {
   const settings = getSettings()
   const win = new BrowserWindow(buildWindowOptions(settings.displayMode))
   win.loadURL(settings.defaultUrl)
+
+  // Kiosk 导航锁定:仅允许同 host / allowlist 内导航,拦截其余跳转。
+  win.webContents.on('will-navigate', (e, url) => {
+    const s = getSettings()
+    if (!isAllowedNavigation(url, s.defaultUrl, s.urlAllowlist)) {
+      e.preventDefault()
+    }
+  })
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    const s = getSettings()
+    if (s.update.openExternalLinks && /^https?:/.test(url)) {
+      void shell.openExternal(url)
+    }
+    return { action: 'deny' }
+  })
+
   contentWindow = win
 }
 
