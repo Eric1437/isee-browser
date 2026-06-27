@@ -6,6 +6,7 @@ import { createSettingsWindow, getSettingsWindow } from './settings-window'
 import { registerIpcHandlers } from './ipc'
 import { initUpdater, checkForUpdates } from './updater'
 import { isAllowedNavigation } from './nav-guard'
+import { registerDownloadHandler } from './downloads'
 
 let contentWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -30,6 +31,13 @@ function createContentWindow() {
     }
     return { action: 'deny' }
   })
+
+  // 文件下载:按设置询问保存位置或存入默认目录。
+  registerDownloadHandler(
+    win.webContents.session,
+    settings.download.defaultFolder,
+    settings.download.alwaysAsk
+  )
 
   contentWindow = win
 }
