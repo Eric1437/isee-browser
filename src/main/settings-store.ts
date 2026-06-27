@@ -1,8 +1,6 @@
 // 设置持久化存储 —— 依赖 electron-store(主进程运行时)。与纯校验逻辑分离,便于测试。
 import Store from 'electron-store'
-import { defaultSettings, validateSettings, type AppSettings } from './settings'
-
-export type SettingsPatch = Partial<AppSettings>
+import { defaultSettings, validateSettings, type AppSettings, type SettingsPatch } from './settings'
 
 let store: Store<AppSettings> | null = null
 

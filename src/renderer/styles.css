@@ -1,0 +1,84 @@
+body {
+  font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  margin: 0;
+  padding: 16px 20px;
+  color: #222;
+  background: #fafafa;
+}
+
+.app h1 {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 20px 0;
+}
+
+.form-section h2 {
+  font-size: 14px;
+  margin: 16px 0 8px;
+  color: #555;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.field > span {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.field input[type='text'],
+.field input[type='url'],
+.field select {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.field.check > span {
+  width: auto;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+button {
+  padding: 6px 14px;
+  font-size: 13px;
+  border: 1px solid #1976d2;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #bbb;
+  border-color: #bbb;
+  cursor: not-allowed;
+}
+
+.message {
+  font-size: 13px;
+  color: #2e7d32;
+}
+
+.update-status {
+  font-size: 13px;
+  margin: 8px 0;
+}

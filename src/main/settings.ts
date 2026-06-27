@@ -1,15 +1,7 @@
-// 应用设置类型定义与校验 —— 无 electron 依赖,便于在测试环境中导入。
-export type DisplayMode = 'fullscreen' | 'maximized' | 'normal'
+// 设置类型与校验 —— 类型来自 shared(主进程与渲染进程共用),此处提供默认值与校验。
+export type { AppSettings, DisplayMode, SettingsPatch } from '../shared/settings-types'
 
-export interface AppSettings {
-  defaultUrl: string
-  autoStart: boolean
-  displayMode: DisplayMode
-  download: { defaultFolder: string; alwaysAsk: boolean }
-  update: { autoCheck: boolean; openExternalLinks: boolean }
-  urlAllowlist: string[]
-  gpu: { disabled: boolean }
-}
+import type { AppSettings, SettingsPatch } from '../shared/settings-types'
 
 export const defaultSettings: AppSettings = {
   defaultUrl: 'https://example.com',
@@ -22,15 +14,10 @@ export const defaultSettings: AppSettings = {
 }
 
 const URL_RE = /^https?:\/\/.+/
-const MODES: readonly DisplayMode[] = ['fullscreen', 'maximized', 'normal']
-
-// 深层 Partial:允许子对象部分传入。
-type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
-}
+const MODES: readonly string[] = ['fullscreen', 'maximized', 'normal']
 
 // 校验并合并部分设置,失败抛错。纯函数。
-export function validateSettings(input: DeepPartial<AppSettings>): AppSettings {
+export function validateSettings(input: SettingsPatch): AppSettings {
   const merged: AppSettings = {
     ...defaultSettings,
     ...(input as Partial<AppSettings>),
