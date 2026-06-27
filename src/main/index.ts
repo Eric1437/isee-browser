@@ -7,6 +7,7 @@ import { registerIpcHandlers } from './ipc'
 import { initUpdater, checkForUpdates } from './updater'
 import { isAllowedNavigation } from './nav-guard'
 import { registerDownloadHandler } from './downloads'
+import { setAutoStart } from './autostart'
 
 let contentWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -80,6 +81,9 @@ if (!gotLock) {
     createContentWindow()
     createTray()
     globalShortcut.register('CommandOrControl+Shift+Comma', () => openSettings())
+
+    // 开机自启:启动时按设置同步系统注册项,确保与用户偏好一致。
+    void setAutoStart(getSettings().autoStart)
 
     // 自动更新:初始化事件转发;若启用则启动检查 + 每 4 小时复查。
     initUpdater(() => {

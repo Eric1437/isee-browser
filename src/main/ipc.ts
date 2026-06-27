@@ -46,7 +46,11 @@ export function registerIpcHandlers(deps: IpcDeps = {}): void {
 
   ipc.handle('settings:get', () => get())
   ipc.handle('settings:set', (_e, patch) => set(patch))
-  ipc.handle('autostart:toggle', (_e, enabled: boolean) => auto(enabled))
+  ipc.handle('autostart:toggle', async (_e, enabled: boolean) => {
+    // 持久化设置后联动系统开机自启,二者保持一致。
+    set({ autoStart: enabled })
+    await auto(enabled)
+  })
   ipc.handle('storage:clear', async () => {
     await clear()
     reloadContent()

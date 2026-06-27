@@ -20,3 +20,8 @@ export async function setAutoStart(enabled: boolean): Promise<void> {
 export async function getAutoStart(): Promise<boolean> {
   return getLauncher().isEnabled()
 }
+
+// 仅供测试:重置内部 launcher 实例,使下一次调用重新构造。
+export function _resetLauncherForTest(): void {
+  launcher = null
+}
