@@ -80,7 +80,8 @@ if (!gotLock) {
     })
     createContentWindow()
     createTray()
-    globalShortcut.register('CommandOrControl+Shift+Comma', () => openSettings())
+  // 逗号键在 Electron accelerator 中是字面量 ",",不是 "Comma"(后者会解析失败)。
+  globalShortcut.register('CommandOrControl+Shift+,', () => openSettings())
 
     // 开机自启:启动时按设置同步系统注册项,确保与用户偏好一致。
     void setAutoStart(getSettings().autoStart)
