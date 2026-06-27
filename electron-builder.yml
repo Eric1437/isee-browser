@@ -1,0 +1,31 @@
+appId: com.isee.browser
+productName: isee-browser
+directories:
+  output: release
+files:
+  - out/**/*
+  - resources/**/*
+asar: true
+win:
+  target:
+    - nsis
+  icon: resources/icon.png
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+linux:
+  target:
+    - AppImage
+    - deb
+  icon: resources/icon.png
+  category: Utility
+  maintainer: isee
+appImage:
+  artifactName: ${productName}-${version}-${arch}.AppImage
+publish:
+  provider: github
+  owner: ${GH_OWNER}
+  repo: ${GH_REPO}
