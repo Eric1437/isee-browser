@@ -11,6 +11,7 @@ const DISPLAY_MODES: { value: DisplayMode; label: string }[] = [
 export function SettingsForm() {
   const [settings, setSettings] = useState<AppSettings | null>(null)
   const [saving, setSaving] = useState(false)
+  const [clearing, setClearing] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
@@ -40,6 +41,20 @@ export function SettingsForm() {
       setMessage(`保存失败:${e instanceof Error ? e.message : String(e)}`)
     } finally {
       setSaving(false)
+    }
+  }
+
+  // 清除 Kiosk 分区的浏览数据(localStorage/cookies/indexDB 等),主进程清除后会刷新内容窗口。
+  const handleClearStorage = async () => {
+    setClearing(true)
+    setMessage(null)
+    try {
+      await settingsApi.clearStorage()
+      setMessage('已清除浏览数据')
+    } catch (e) {
+      setMessage(`清除失败:${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setClearing(false)
     }
   }
 
@@ -147,6 +162,14 @@ export function SettingsForm() {
         />
         <span>关闭硬件加速(部分 Linux 兼容)</span>
       </label>
+
+      <h2>存储</h2>
+      <div className="actions">
+        <button type="button" onClick={handleClearStorage} disabled={clearing}>
+          {clearing ? '清除中…' : '清除浏览数据'}
+        </button>
+        <span className="message">清除内容窗口的本地存储、Cookie、缓存等</span>
+      </div>
 
       <div className="actions">
         <button type="button" onClick={handleSave} disabled={saving}>

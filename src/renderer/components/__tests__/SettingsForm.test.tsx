@@ -63,4 +63,14 @@ describe('SettingsForm', () => {
       expect(settingsApi.selectDownloadFolder).toHaveBeenCalled()
     })
   })
+
+  it('点击清除浏览数据调用 clearStorage', async () => {
+    const { SettingsForm } = await import('../SettingsForm')
+    render(<SettingsForm />)
+    await screen.findByLabelText('默认地址')
+    fireEvent.click(screen.getByText('清除浏览数据'))
+    await waitFor(() => {
+      expect(settingsApi.clearStorage).toHaveBeenCalled()
+    })
+  })
 })

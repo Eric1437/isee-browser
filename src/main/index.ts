@@ -74,7 +74,9 @@ if (!gotLock) {
   })
 
   app.whenReady().then(() => {
-    registerIpcHandlers()
+    registerIpcHandlers({
+      reloadContentWindow: () => contentWindow?.reload()
+    })
     createContentWindow()
     createTray()
     globalShortcut.register('CommandOrControl+Shift+Comma', () => openSettings())

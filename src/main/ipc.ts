@@ -19,6 +19,7 @@ export interface IpcDeps {
   setAutoStart?: typeof setAutoStart
   clearStorage?: typeof clearStorage
   selectDownloadFolder?: () => Promise<string | null>
+  reloadContentWindow?: () => void
   checkForUpdates?: typeof checkForUpdates
   downloadUpdate?: typeof downloadUpdate
   installUpdate?: typeof installUpdate
@@ -37,6 +38,7 @@ export function registerIpcHandlers(deps: IpcDeps = {}): void {
       const r = await dialog.showOpenDialog({ properties: ['openDirectory'] })
       return r.canceled ? null : r.filePaths[0]
     })
+  const reloadContent = deps.reloadContentWindow ?? (() => {})
   const check = deps.checkForUpdates ?? checkForUpdates
   const download = deps.downloadUpdate ?? downloadUpdate
   const install = deps.installUpdate ?? installUpdate
@@ -45,7 +47,10 @@ export function registerIpcHandlers(deps: IpcDeps = {}): void {
   ipc.handle('settings:get', () => get())
   ipc.handle('settings:set', (_e, patch) => set(patch))
   ipc.handle('autostart:toggle', (_e, enabled: boolean) => auto(enabled))
-  ipc.handle('storage:clear', () => clear())
+  ipc.handle('storage:clear', async () => {
+    await clear()
+    reloadContent()
+  })
   ipc.handle('dialog:downloadFolder', () => selectFolder())
   ipc.handle('update:check', () => check())
   ipc.handle('update:download', () => download())
