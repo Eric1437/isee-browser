@@ -1,14 +1,13 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage } from 'electron'
 import { join } from 'node:path'
 import { buildWindowOptions } from './windows'
-import { defaultSettings } from './types'
+import { getSettings } from './settings-store'
 
 let contentWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 
 function createContentWindow() {
-  // TODO(阶段2): 接入 getSettings() 读取持久化设置
-  const settings = defaultSettings
+  const settings = getSettings()
   const win = new BrowserWindow(buildWindowOptions(settings.displayMode))
   win.loadURL(settings.defaultUrl)
   contentWindow = win

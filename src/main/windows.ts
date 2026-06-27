@@ -1,5 +1,5 @@
 import type { BrowserWindowConstructorOptions } from 'electron'
-import type { DisplayMode } from './types'
+import type { DisplayMode } from './settings'
 
 // 构造内容窗口的 BrowserWindow 选项。纯函数,便于单测。
 export function buildWindowOptions(
