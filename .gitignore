@@ -6,6 +6,9 @@ out/
 release/
 dist/
 
+# TS 增量构建缓存
+*.tsbuildinfo
+
 # electron-vite 缓存
 .vite/
 
