@@ -45,6 +45,23 @@ describe('registerIpcHandlers', () => {
     expect(setSettings).toHaveBeenCalledWith({ defaultUrl: 'https://new.com' })
   })
 
+  it('settings:set 默认地址变更时调用 loadUrl 加载新地址', async () => {
+    const { registerIpcHandlers } = await import('./ipc')
+    const loadUrl = vi.fn()
+    registerIpcHandlers({ loadUrlInContentWindow: loadUrl })
+    await fakeHandlers['settings:set']({}, { defaultUrl: 'https://changed.com' })
+    expect(loadUrl).toHaveBeenCalledWith('https://changed.com')
+  })
+
+  it('settings:set 默认地址未变更时不调用 loadUrl', async () => {
+    const { registerIpcHandlers } = await import('./ipc')
+    const loadUrl = vi.fn()
+    registerIpcHandlers({ loadUrlInContentWindow: loadUrl })
+    // 不改默认地址,仅改其他字段 —— getSettings 返回的 defaultUrl 与 setSettings 回传一致。
+    await fakeHandlers['settings:set']({}, { autoStart: true })
+    expect(loadUrl).not.toHaveBeenCalled()
+  })
+
   it('autostart:toggle 传递布尔', async () => {
     const { registerIpcHandlers } = await import('./ipc')
     const { setAutoStart } = await import('./autostart')

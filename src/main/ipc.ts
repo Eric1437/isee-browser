@@ -20,6 +20,7 @@ export interface IpcDeps {
   clearStorage?: typeof clearStorage
   selectDownloadFolder?: () => Promise<string | null>
   reloadContentWindow?: () => void
+  loadUrlInContentWindow?: (url: string) => void
   checkForUpdates?: typeof checkForUpdates
   downloadUpdate?: typeof downloadUpdate
   installUpdate?: typeof installUpdate
@@ -39,13 +40,22 @@ export function registerIpcHandlers(deps: IpcDeps = {}): void {
       return r.canceled ? null : r.filePaths[0]
     })
   const reloadContent = deps.reloadContentWindow ?? (() => {})
+  const loadUrl = deps.loadUrlInContentWindow ?? (() => {})
   const check = deps.checkForUpdates ?? checkForUpdates
   const download = deps.downloadUpdate ?? downloadUpdate
   const install = deps.installUpdate ?? installUpdate
   const getStatus = deps.getUpdateState ?? getUpdateState
 
   ipc.handle('settings:get', () => get())
-  ipc.handle('settings:set', (_e, patch) => set(patch))
+  ipc.handle('settings:set', (_e, patch) => {
+    const before = get()
+    const after = set(patch)
+    // 默认地址变更时立即加载新地址,无需重启应用;仅改其他设置不打断当前会话。
+    if (after.defaultUrl && after.defaultUrl !== before.defaultUrl) {
+      loadUrl(after.defaultUrl)
+    }
+    return after
+  })
   ipc.handle('autostart:toggle', async (_e, enabled: boolean) => {
     // 持久化设置后联动系统开机自启,二者保持一致。
     set({ autoStart: enabled })

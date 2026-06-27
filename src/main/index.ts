@@ -76,7 +76,8 @@ if (!gotLock) {
 
   app.whenReady().then(() => {
     registerIpcHandlers({
-      reloadContentWindow: () => contentWindow?.reload()
+      reloadContentWindow: () => contentWindow?.reload(),
+      loadUrlInContentWindow: (url) => contentWindow?.loadURL(url)
     })
     createContentWindow()
     createTray()
