@@ -7,7 +7,10 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
-        input: { index: resolve(__dirname, 'src/main/index.ts') }
+        input: { index: resolve(__dirname, 'src/main/index.ts') },
+        // electron-store 等 ESM-only 依赖经 externalize 后以 require 加载,
+        // 默认导入需 interop(检查 __esModule 取 .default),否则 Store 不是构造函数。
+        output: { interop: 'auto' }
       }
     }
   },
