@@ -13,7 +13,6 @@ export function createSettingsWindow(): void {
     width: 760,
     height: 800,
     title: '设置',
-    autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/settings.js'),
       contextIsolation: true,

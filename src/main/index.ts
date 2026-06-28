@@ -59,6 +59,77 @@ function createTray() {
   )
 }
 
+// 中文应用菜单:覆盖 Electron 默认英文菜单(File/Edit/View/Window/Help)。
+function createAppMenu() {
+  const isMac = process.platform === 'darwin'
+  const appMenu: Electron.MenuItemConstructorOptions = {
+    label: app.name,
+    submenu: [
+      { role: 'about', label: '关于' },
+      { type: 'separator' },
+      { role: 'services', label: '服务' },
+      { type: 'separator' },
+      { role: 'hide', label: '隐藏' },
+      { role: 'hideOthers', label: '隐藏其他' },
+      { role: 'unhide', label: '显示全部' },
+      { type: 'separator' },
+      { role: 'quit', label: '退出' }
+    ]
+  }
+  const template: Electron.MenuItemConstructorOptions[] = [
+    ...(isMac ? [appMenu] : []),
+    {
+      label: '文件',
+      submenu: [isMac ? { role: 'close', label: '关闭窗口' } : { role: 'quit', label: '退出' }]
+    },
+    {
+      label: '编辑',
+      submenu: [
+        { role: 'undo', label: '撤销' },
+        { role: 'redo', label: '重做' },
+        { type: 'separator' },
+        { role: 'cut', label: '剪切' },
+        { role: 'copy', label: '复制' },
+        { role: 'paste', label: '粘贴' },
+        { role: 'selectAll', label: '全选' }
+      ]
+    },
+    {
+      label: '视图',
+      submenu: [
+        { role: 'reload', label: '刷新页面' },
+        { role: 'forceReload', label: '强制刷新' },
+        { role: 'toggleDevTools', label: '开发者工具' },
+        { type: 'separator' },
+        { role: 'resetZoom', label: '重置缩放' },
+        { role: 'zoomIn', label: '放大' },
+        { role: 'zoomOut', label: '缩小' },
+        { type: 'separator' },
+        { role: 'togglefullscreen', label: '全屏' }
+      ]
+    },
+    {
+      label: '应用',
+      submenu: [
+        { label: '设置', click: () => openSettings() },
+        { label: '检查更新', click: () => void checkForUpdates() },
+        { type: 'separator' },
+        { label: '重启', click: () => app.relaunch() }
+      ]
+    },
+    {
+      label: '窗口',
+      submenu: [
+        { role: 'minimize', label: '最小化' },
+        { role: 'zoom', label: '缩放' },
+        { type: 'separator' },
+        { role: 'front', label: '前置全部窗口' }
+      ]
+    }
+  ]
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+}
+
 function openSettings() {
   createSettingsWindow()
 }
@@ -84,6 +155,7 @@ if (!gotLock) {
     })
     createContentWindow()
     createTray()
+    createAppMenu()
   // 逗号键在 Electron accelerator 中是字面量 ",",不是 "Comma"(后者会解析失败)。
   globalShortcut.register('CommandOrControl+Shift+,', () => openSettings())
 
