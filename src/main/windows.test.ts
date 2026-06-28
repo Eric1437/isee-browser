@@ -1,5 +1,9 @@
-import { describe, it, expect } from 'vitest'
-import { buildWindowOptions, shouldFocusSecondInstance } from './windows'
+import { describe, it, expect, vi } from 'vitest'
+import {
+  buildWindowOptions,
+  shouldFocusSecondInstance,
+  applyDisplayMode
+} from './windows'
 
 describe('buildWindowOptions', () => {
   it('fullscreen 模式启用 kiosk', () => {
@@ -29,5 +33,37 @@ describe('shouldFocusSecondInstance', () => {
 
   it('无窗口时返回 false', () => {
     expect(shouldFocusSecondInstance(false)).toBe(false)
+  })
+})
+
+// 用最小 mock 的窗口对象验证 applyDisplayMode 的副作用调用,无需真实 Electron。
+function mockWin() {
+  return {
+    setKiosk: vi.fn(),
+    maximize: vi.fn(),
+    unmaximize: vi.fn(),
+    isMaximized: vi.fn(() => false)
+  }
+}
+
+describe('applyDisplayMode', () => {
+  it('fullscreen 进入 kiosk', () => {
+    const win = mockWin()
+    applyDisplayMode(win as any, 'fullscreen')
+    expect(win.setKiosk).toHaveBeenCalledWith(true)
+  })
+
+  it('maximized 退出 kiosk 并最大化', () => {
+    const win = mockWin()
+    applyDisplayMode(win as any, 'maximized')
+    expect(win.setKiosk).toHaveBeenCalledWith(false)
+    expect(win.maximize).toHaveBeenCalled()
+  })
+
+  it('normal 退出 kiosk 并取消最大化', () => {
+    const win = mockWin()
+    applyDisplayMode(win as any, 'normal')
+    expect(win.setKiosk).toHaveBeenCalledWith(false)
+    expect(win.unmaximize).toHaveBeenCalled()
   })
 })

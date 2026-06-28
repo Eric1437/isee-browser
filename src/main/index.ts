@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, shell } from 'electron'
 import { join } from 'node:path'
-import { buildWindowOptions } from './windows'
+import { buildWindowOptions, applyDisplayMode } from './windows'
 import { getSettings } from './settings-store'
 import { createSettingsWindow, getSettingsWindow } from './settings-window'
 import { registerIpcHandlers } from './ipc'
@@ -77,7 +77,10 @@ if (!gotLock) {
   app.whenReady().then(() => {
     registerIpcHandlers({
       reloadContentWindow: () => contentWindow?.reload(),
-      loadUrlInContentWindow: (url) => contentWindow?.loadURL(url)
+      loadUrlInContentWindow: (url) => contentWindow?.loadURL(url),
+      applyDisplayMode: (mode) => {
+        if (contentWindow) applyDisplayMode(contentWindow, mode)
+      }
     })
     createContentWindow()
     createTray()

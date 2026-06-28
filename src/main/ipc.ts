@@ -3,6 +3,7 @@ import { ipcMain, dialog, type IpcMain } from 'electron'
 import { getSettings, setSettings } from './settings-store'
 import { setAutoStart } from './autostart'
 import { clearStorage } from './storage'
+import type { DisplayMode } from './settings'
 import {
   checkForUpdates,
   downloadUpdate,
@@ -21,6 +22,7 @@ export interface IpcDeps {
   selectDownloadFolder?: () => Promise<string | null>
   reloadContentWindow?: () => void
   loadUrlInContentWindow?: (url: string) => void
+  applyDisplayMode?: (mode: DisplayMode) => void
   checkForUpdates?: typeof checkForUpdates
   downloadUpdate?: typeof downloadUpdate
   installUpdate?: typeof installUpdate
@@ -41,6 +43,7 @@ export function registerIpcHandlers(deps: IpcDeps = {}): void {
     })
   const reloadContent = deps.reloadContentWindow ?? (() => {})
   const loadUrl = deps.loadUrlInContentWindow ?? (() => {})
+  const applyMode = deps.applyDisplayMode ?? (() => {})
   const check = deps.checkForUpdates ?? checkForUpdates
   const download = deps.downloadUpdate ?? downloadUpdate
   const install = deps.installUpdate ?? installUpdate
@@ -53,6 +56,10 @@ export function registerIpcHandlers(deps: IpcDeps = {}): void {
     // 默认地址变更时立即加载新地址,无需重启应用;仅改其他设置不打断当前会话。
     if (after.defaultUrl && after.defaultUrl !== before.defaultUrl) {
       loadUrl(after.defaultUrl)
+    }
+    // 显示模式变更时立即切换窗口状态,无需重启。
+    if (after.displayMode !== before.displayMode) {
+      applyMode(after.displayMode)
     }
     return after
   })

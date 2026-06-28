@@ -11,7 +11,7 @@ export function createSettingsWindow(): void {
   }
   settingsWindow = new BrowserWindow({
     width: 760,
-    height: 680,
+    height: 800,
     title: '设置',
     autoHideMenuBar: true,
     webPreferences: {

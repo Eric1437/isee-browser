@@ -62,6 +62,41 @@ describe('registerIpcHandlers', () => {
     expect(loadUrl).not.toHaveBeenCalled()
   })
 
+  it('settings:set 显示模式变更时调用 applyDisplayMode', async () => {
+    const { registerIpcHandlers } = await import('./ipc')
+    const { getSettings, setSettings } = await import('./settings-store')
+    // getSettings 返回 fullscreen;setSettings 回传 maximized,触发显示模式切换。
+    vi.mocked(getSettings).mockReturnValueOnce({
+      defaultUrl: 'https://example.com',
+      displayMode: 'fullscreen'
+    } as any)
+    vi.mocked(setSettings).mockImplementationOnce((() => ({
+      defaultUrl: 'https://example.com',
+      displayMode: 'maximized'
+    })) as any)
+    const applyMode = vi.fn()
+    registerIpcHandlers({ applyDisplayMode: applyMode })
+    await fakeHandlers['settings:set']({}, { displayMode: 'maximized' })
+    expect(applyMode).toHaveBeenCalledWith('maximized')
+  })
+
+  it('settings:set 显示模式未变更时不调用 applyDisplayMode', async () => {
+    const { registerIpcHandlers } = await import('./ipc')
+    const { getSettings, setSettings } = await import('./settings-store')
+    vi.mocked(getSettings).mockReturnValueOnce({
+      defaultUrl: 'https://example.com',
+      displayMode: 'normal'
+    } as any)
+    vi.mocked(setSettings).mockImplementationOnce((() => ({
+      defaultUrl: 'https://example.com',
+      displayMode: 'normal'
+    })) as any)
+    const applyMode = vi.fn()
+    registerIpcHandlers({ applyDisplayMode: applyMode })
+    await fakeHandlers['settings:set']({}, { autoStart: true })
+    expect(applyMode).not.toHaveBeenCalled()
+  })
+
   it('autostart:toggle 传递布尔', async () => {
     const { registerIpcHandlers } = await import('./ipc')
     const { setAutoStart } = await import('./autostart')
