@@ -27,5 +27,5 @@ appImage:
   artifactName: ${productName}-${version}-${arch}.AppImage
 publish:
   provider: github
-  owner: ${GH_OWNER}
-  repo: ${GH_REPO}
+  owner: Eric1437
+  repo: isee-browser
