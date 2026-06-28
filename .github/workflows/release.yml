@@ -1,5 +1,5 @@
 # 打包发布:推送 v*.*.* tag 时,在 Windows + Linux 上打包并发布到 GitHub Releases。
-# CI 自带的 GITHUB_TOKEN 用于鉴权与发布,无需手动配置 token。
+# 发布由 softprops/action-gh-release 显式完成(非草稿),不依赖 electron-builder 的 publish。
 name: Release
 
 on:
@@ -8,7 +8,7 @@ on:
       - 'v*.*.*'
 
 permissions:
-  contents: write # 发布 Release 需要写权限
+  contents: write # 创建 Release 需要写权限
 
 jobs:
   release:
@@ -36,11 +36,10 @@ jobs:
       - name: 安装依赖
         run: npm ci
 
-      - name: 打包并发布(${{ matrix.platform }})
+      - name: 打包(electron-builder 仅打包,不上传)
         env:
-          # electron-builder 通过 GH_TOKEN 鉴权;CI 自带 token 自动提供,无需手动设。
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run dist:${{ matrix.platform }}
+        run: npx electron-vite build && npx electron-builder --${{ matrix.platform }} --publish never
 
       - name: 上传构建产物(便于排查)
         if: always()
@@ -54,3 +53,29 @@ jobs:
             release/*.deb
             release/*.blockmap
           if-no-files-found: ignore
+
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 下载所有平台产物
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: 创建 GitHub Release 并上传产物
+        uses: softprops/action-gh-release@v2
+        with:
+          # tag 已由推送触发,这里把产物挂到该 tag 对应的 Release(非草稿)。
+          files: |
+            release/*.exe
+            release/*.yml
+            release/*.AppImage
+            release/*.deb
+            release/*.blockmap
+          generate_release_notes: true
+          draft: false
+          prerelease: false
