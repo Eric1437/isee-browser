@@ -1,0 +1,56 @@
+# 打包发布:推送 v*.*.* tag 时,在 Windows + Linux 上打包并发布到 GitHub Releases。
+# CI 自带的 GITHUB_TOKEN 用于鉴权与发布,无需手动配置 token。
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write # 发布 Release 需要写权限
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false # 一个平台失败不影响另一个
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+          - os: ubuntu-latest
+            platform: linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 打包并发布(${{ matrix.platform }})
+        env:
+          # electron-builder 通过 GH_TOKEN 鉴权;CI 自带 token 自动提供,无需手动设。
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run dist:${{ matrix.platform }}
+
+      - name: 上传构建产物(便于排查)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            release/*.exe
+            release/*.yml
+            release/*.AppImage
+            release/*.deb
+            release/*.blockmap
+          if-no-files-found: ignore
