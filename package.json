@@ -1,6 +1,6 @@
 {
   "name": "isee-browser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "isee-browser - 跨平台 Kiosk 桌面浏览器客户端",
   "main": "out/main/index.js",
   "author": "isee",
